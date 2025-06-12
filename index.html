@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Lógica e Matemática</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <h1>Jogo de Lógica e Matemática</h1>
+        <div class="score-area">
+            Acertos: <span id="correct-score">0</span> | Erros: <span id="incorrect-score">0</span>
+        </div>
+        
+        <div class="timer-area">
+            Tempo: <span id="timer">02:00</span>
+        </div>
+
+        <div class="all-cards-and-options-wrapper" id="allCardsAndOptionsWrapper">
+            <div class="mystery-cards-container" id="mysteryCardsContainer">
+                <div class="card" data-card-index="0">
+                    <div class="card-inner">
+                        <div class="card-front">?</div>
+                        <div class="card-back"><p class="equation-text"></p></div>
+                    </div>
+                </div>
+                <div class="card" data-card-index="1">
+                    <div class="card-inner">
+                        <div class="card-front">?</div>
+                        <div class="card-back"><p class="equation-text"></p></div>
+                    </div>
+                </div>
+                <div class="card" data-card-index="2">
+                    <div class="card-inner">
+                        <div class="card-front">?</div>
+                        <div class="card-back"><p class="equation-text"></p></div>
+                    </div>
+                </div>
+                <div class="card" data-card-index="3">
+                    <div class="card-inner">
+                        <div class="card-front">?</div>
+                        <div class="card-back"><p class="equation-text"></p></div>
+                    </div>
+                </div>
+            </div>
+
+            <button class="solve-button hidden" id="solveButton">Resolver</button>
+
+            <div class="options-container hidden" id="optionsContainer">
+                <button class="option-button" data-option-value="0"></button>
+                <button class="option-button" data-option-value="1"></button>
+                <button class="option-button" data-option-value="2"></button>
+                <button class="option-button" data-option-value="3"></button>
+            </div>
+        </div>
+
+        <div class="feedback-area" id="feedbackArea"></div>
+        <button class="next-button" id="nextButton" style="display: none;">Próxima Equação</button>
+        <button class="restart-button" id="restartButton">Reiniciar Jogo</button>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

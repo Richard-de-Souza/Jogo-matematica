@@ -1,0 +1,344 @@
+body {
+    font-family: 'Arial', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f0f2f5;
+    margin: 0;
+    color: #333;
+    overflow-x: hidden; /* Evita scroll horizontal em transições */
+}
+
+.game-container {
+    background-color: #fff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 500px;
+    position: relative; /* Para positioning de elementos internos */
+    min-height: 480px; /* Garante espaço para cards e opções */
+    display: flex; /* Para flexbox interno */
+    flex-direction: column;
+    align-items: center;
+    box-sizing: border-box; /* Garante que padding e border sejam incluídos na largura/altura */
+}
+
+h1 {
+    color: #4CAF50;
+    margin-bottom: 25px;
+    font-size: 2em;
+}
+
+.score-area {
+    font-size: 1.1em;
+    margin-bottom: 10px; /* Ajuste para dar espaço ao timer */
+    color: #555;
+}
+
+.timer-area {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: #007bff; /* Cor azul para o timer */
+    margin-bottom: 20px;
+}
+
+/* Wrapper para controlar a exibição dos cards/opções */
+.all-cards-and-options-wrapper {
+    width: 100%;
+    position: relative;
+    min-height: 250px; /* Aumentado para acomodar o card expandido + botão */
+    margin-top: 20px;
+}
+
+/* Container para os 4 cartões misteriosos */
+.mystery-cards-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    justify-items: center;
+    align-items: center;
+    width: 100%;
+    /* Removido position: absolute daqui para não bugar o fluxo, mantido no JS para o .hidden */
+    top: 0;
+    left: 0;
+    transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+}
+
+/* Esconde o container de cartões para dar lugar às opções */
+.mystery-cards-container.hidden {
+    transform: translateX(-100%);
+    opacity: 0;
+    pointer-events: none; /* Impede cliques quando escondido */
+    position: absolute; /* Adicionado aqui para controlar o fluxo */
+}
+
+/* O card base (agora usado para os 4 cartões de escolha) */
+.card {
+    width: 120px;
+    height: 160px; /* Mantém altura inicial para os cards "mistério" */
+    perspective: 1000px;
+    position: relative; /* Para o inner */
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+    cursor: pointer;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.card.is-flipped {
+    transform: rotateY(180deg);
+}
+
+/* Garante que apenas o card clicado fique no centro */
+.card.selected-card {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%) rotateY(180deg); /* Centraliza e já vira */
+    z-index: 10; /* Garante que fique acima dos outros */
+    cursor: default; /* Não clicável após seleção */
+    pointer-events: none; /* Desabilita cliques após selecionar */
+    
+    width: 95%; /* Aumenta a largura para dar mais espaço à equação */
+    max-width: 320px; /* Limite máximo um pouco maior */
+    height: auto; /* Permite que a altura se ajuste ao conteúdo */
+    min-height: 160px; /* Garante uma altura mínima */
+    padding-bottom: 25px; /* Mais espaço para o botão Resolver */
+    box-sizing: border-box; 
+    display: flex; /* Adicionado para centralizar o conteúdo do card interno */
+    align-items: center; /* Centraliza verticalmente o conteúdo */
+    justify-content: center; /* Centraliza horizontalmente o conteúdo */
+}
+
+.card-inner {
+    position: relative; /* Para melhor fluxo com height:auto */
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    transform-style: preserve-3d;
+}
+
+.card-front, .card-back {
+    position: absolute;
+    width: 100%;
+    height: 100%; /* Permite que as faces ocupem 100% da nova altura do .card */
+    backface-visibility: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 10px;
+    padding: 15px; /* Padding interno para o conteúdo */
+    box-sizing: border-box;
+}
+
+.card-front {
+    background-color: #2196F3; /* Azul para o lado da pergunta */
+    color: white;
+    font-size: 3.5em; /* Tamanho do '?' */
+    font-weight: bold;
+}
+
+.card-back {
+    color: #333;
+    font-size: 1.9em; /* Fonte ligeiramente reduzida para caber mais */
+    font-weight: bold;
+    transform: rotateY(180deg);
+    padding: 15px; /* Mantém o padding aumentado */
+    line-height: 1.15; /* Espaçamento entre linhas mais apertado, se necessário */
+    text-align: center; /* Garante que o texto esteja centralizado */
+}
+
+.equation-text {
+    margin: 0;
+    line-height: inherit; /* Herda o line-height do card-back */
+    white-space: pre-wrap; /* Permite quebra de linha se a equação for longa */
+    word-break: break-word; /* Força a quebra de palavras longas */
+    hyphens: auto; /* Ajuda a quebrar palavras longas em português */
+}
+
+/* Novo botão Resolver */
+.solve-button {
+    background-color: #FFA000; /* Laranja para o botão Resolver */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, opacity 0.3s, transform 0.3s;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 1;
+    z-index: 5;
+    
+    position: absolute; 
+    bottom: 0; 
+    margin-bottom: 20px; 
+    width: 100%;
+    max-width: 200px;
+}
+
+.solve-button:hover {
+    background-color: #FF8F00;
+}
+
+.solve-button.hidden {
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(-50%) translateY(20px);
+}
+
+
+/* Container para as opções de resposta */
+.options-container {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 15px;
+    width: 100%;
+    position: absolute; 
+    top: 0; 
+    left: 0;
+    transition: transform 0.6s ease-in-out, opacity 0.6s ease-in-out;
+}
+
+/* Esconde as opções quando não estão ativas */
+.options-container.hidden {
+    transform: translateX(100%); 
+    opacity: 0;
+    pointer-events: none;
+}
+
+/* Mostra as opções quando estão ativas */
+.options-container.active {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.option-button {
+    background-color: #e0e0e0;
+    color: #333;
+    border: none;
+    padding: 15px 20px;
+    font-size: 1.2em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s, transform 0.1s;
+    outline: none;
+}
+
+.option-button:hover {
+    background-color: #d0d0d0;
+    transform: translateY(-2px);
+}
+
+.option-button:active {
+    transform: translateY(0);
+}
+
+.option-button.correct {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.option-button.incorrect {
+    background-color: #F44336;
+    color: white;
+}
+
+.feedback-area {
+    margin-bottom: 20px; /* Ajustado para dar espaço ao restart button */
+    margin-top: 25px;
+    font-size: 2em;
+    font-weight: bold;
+    height: 35px; /* Para manter o layout estável */
+}
+
+.next-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    margin-top: 25px;
+    width: 100%;
+    max-width: 250px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.restart-button {
+    background-color: #6c757d;
+    /* Removido 'display: none;' e 'margin-top: 15px;' para ser sempre visível e com margem automática */
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 1.1em;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+    max-width: 250px;
+    display: block; /* Garante que ele ocupe sua própria linha */
+    margin: 15px auto 0 auto; /* Centraliza e adiciona margem superior */
+}
+
+.next-button:hover {
+    background-color: #0056b3;
+}
+
+.restart-button:hover {
+    background-color: #5a6268;
+}
+
+@media (max-width: 480px) {
+    .game-container {
+        padding: 20px 25px;
+        min-height: 450px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+    }
+
+    .card {
+        width: 100px;
+        height: 140px;
+    }
+
+    .card-front {
+        font-size: 3em;
+    }
+
+    .card-back {
+        font-size: 1.6em; /* Ajuste para mobile */
+        padding: 10px; /* Mais apertado no mobile se necessário */
+    }
+
+    .card.selected-card {
+        width: 95%; /* Talvez um pouco mais de largura em telas pequenas */
+        min-height: 140px; /* Ajusta a altura mínima para mobile */
+        padding-bottom: 15px; /* Ajusta padding inferior para mobile */
+    }
+
+    .options-container {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .option-button {
+        font-size: 1em;
+        padding: 12px 15px;
+    }
+
+    .solve-button {
+        bottom: 0; /* Continua no fundo */
+        margin-bottom: 15px; /* Ajusta a margem inferior para mobile */
+    }
+}
